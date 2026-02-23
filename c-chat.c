@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 
+
 int main(){
     printf("hi\n");
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -17,9 +18,15 @@ int main(){
 
     int32_t bind_ret = bind(sockfd, (struct sockaddr*) &address, sizeof(address));
 
-    listen(sockfd, 2);
+    printf("bind_ret: %d\n", bind_ret);
+
+    int32_t listen_ret = listen(sockfd, 2);
+
+    printf("listen_ret: %d\n", listen_ret);
 
     int32_t clientfd = accept(sockfd, 0, 0);
+
+    printf("clientfd: %d\n", clientfd);
 
     struct pollfd fds[2] = {
         {0, POLLIN, 0},
