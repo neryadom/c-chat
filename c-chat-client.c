@@ -16,18 +16,12 @@ int main(){
         0
     };
 
-    int32_t bind_ret = bind(sockfd, (struct sockaddr*) &address, sizeof(address));
-    printf("bind_ret: %d\n", bind_ret);
-
-    int32_t listen_ret = listen(sockfd, 2);
-    printf("listen_ret: %d\n", listen_ret);
-
-    int32_t clientfd = accept(sockfd, 0, 0);
-    printf("clientfd: %d\n", clientfd);
+    int32_t connect_ret = connect(sockfd, (struct sockaddr*) &address, sizeof(address));
+    printf("connect_ret: %d\n", connect_ret);
 
     struct pollfd fds[2] = {
         {0, POLLIN, 0},
-        {clientfd, POLLIN, 0}
+        {sockfd, POLLIN, 0}
     };
 
     // running loop to recv and send
@@ -38,9 +32,9 @@ int main(){
 
         if (fds[0].revents & POLLIN) {
             read(0, buffer, 255);
-            send(clientfd, buffer, 255, 0);
+            send(sockfd, buffer, 255, 0);
         } else if (fds[1].revents & POLLIN) {
-            if (recv(clientfd, buffer, 255, 0) == 0) {
+            if (recv(sockfd, buffer, 255, 0) == 0) {
                 printf("Other party closed the socket, exiting...");
                 return 0;
             };
