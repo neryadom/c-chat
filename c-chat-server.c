@@ -27,6 +27,10 @@ int main(){
     }
     printf("sockfd: %d  <- Success!\n", sockfd);
 
+    /* this seems to definitely prevent bind() call error code 98 */
+    int32_t sockopt_flag = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &sockopt_flag, sizeof(sockopt_flag));
+
     const struct sockaddr_in address = {
         AF_INET,
         htons(3456),
