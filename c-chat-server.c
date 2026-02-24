@@ -4,11 +4,20 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include <signal.h>
+
+#include "signal-handling.h"
 
 
 int main(){
     printf("hi\n");
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    /* passing sockfd number to signal handling layer */
+    get_sockfd(sockfd);
+
+    /* registering signal handler to ensure proper shutdown in case of sigint */
+    signal(SIGINT, signal_handler);
 
     const struct sockaddr_in address = {
         AF_INET,
@@ -24,6 +33,9 @@ int main(){
 
     int32_t clientfd = accept(sockfd, 0, 0);
     printf("clientfd: %d\n", clientfd);
+
+    const char welcome[37] = "You are now connected to the server!";
+    send(clientfd, welcome, 37, 0);
 
     struct pollfd fds[2] = {
         {0, POLLIN, 0},
@@ -42,6 +54,7 @@ int main(){
         } else if (fds[1].revents & POLLIN) {
             if (recv(clientfd, buffer, 255, 0) == 0) {
                 printf("Other party closed the socket, exiting...");
+                shutdown(sockfd, SHUT_RDWR);
                 return 0;
             };
             printf("%s", buffer);
