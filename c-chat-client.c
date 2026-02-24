@@ -30,9 +30,9 @@ int main(){
         {clientfd, POLLIN, 0}
     };
 
+    // running loop to recv and send
     while (1) {
-        // 100ms timeout
-        poll(fds, 2, 100);
+        poll(fds, 2, 100 /* in ms */);
 
         char buffer[256] = { 0 };
 
