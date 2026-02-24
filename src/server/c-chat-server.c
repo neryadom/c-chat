@@ -7,8 +7,8 @@
 #include <poll.h>
 #include <signal.h>
 
-#include "signal-handling.h"
-#include "error-handling.h"
+#include "../../include/signal-handling.h"
+#include "../../include/error-handling.h"
 
 int main(){
     printf("=============   Starting server   =============\n\n");
