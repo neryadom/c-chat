@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -7,17 +8,24 @@
 #include <signal.h>
 
 #include "signal-handling.h"
-
+#include "error-handling.h"
 
 int main(){
-    printf("hi\n");
+    printf("=============   Starting server   =============\n\n");
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    /* passing sockfd number to signal handling layer */
-    get_sockfd(sockfd);
-
-    /* registering signal handler to ensure proper shutdown in case of sigint */
+    /* signal handling: passing sockfd number to signal handling layer */
+    signal_get_sockfd(sockfd);
+    /* signal handling: registering signal handler to ensure proper shutdown in case of sigint */
     signal(SIGINT, signal_handler);
+    /* error handling: passing sockfd number to error handling layer */
+    error_get_sockfd(sockfd);
+
+    if (sockfd < 0) {
+        error_handler(errno, "socket");
+        return 1;
+    }
+    printf("sockfd: %d  <- Success!\n", sockfd);
 
     const struct sockaddr_in address = {
         AF_INET,
@@ -26,13 +34,27 @@ int main(){
     };
 
     int32_t bind_ret = bind(sockfd, (struct sockaddr*) &address, sizeof(address));
-    printf("bind_ret: %d\n", bind_ret);
+    if (bind_ret < 0) {
+        error_handler(errno, "bind");
+        return 1;
+    }
+    printf("bind_ret: %d  <- Success!\n", bind_ret);
 
     int32_t listen_ret = listen(sockfd, 2);
-    printf("listen_ret: %d\n", listen_ret);
+    if (listen_ret < 0) {
+        error_handler(errno, "listen");
+        return 1;
+    }
+    printf("listen_ret: %d  <- Success!\n", listen_ret);
+    printf("\n=============   Server running   =============\n\n");
+
 
     int32_t clientfd = accept(sockfd, 0, 0);
-    printf("clientfd: %d\n", clientfd);
+    if (clientfd < 0) {
+        error_handler(errno, "accept");
+        return 1;
+    }
+    printf("clientfd: %d  <- Client connected - Success!\n", clientfd);
 
     const char welcome[37] = "You are now connected to the server!";
     send(clientfd, welcome, 37, 0);
@@ -55,9 +77,10 @@ int main(){
             if (recv(clientfd, buffer, 255, 0) == 0) {
                 printf("Other party closed the socket, exiting...");
                 shutdown(sockfd, SHUT_RDWR);
+                close(sockfd);
                 return 0;
             };
-            printf("%s", buffer);
+            printf("Client: %s", buffer);
         }
     }
     return 0;

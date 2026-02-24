@@ -19,6 +19,12 @@ int main(){
     int32_t connect_ret = connect(sockfd, (struct sockaddr*) &address, sizeof(address));
     printf("connect_ret: %d\n", connect_ret);
 
+    if (connect_ret == 0) {
+        char welcome_buffer[37];
+        recv(sockfd, welcome_buffer, 37, 0);
+        printf("%s\n", welcome_buffer);
+    }
+
     struct pollfd fds[2] = {
         {0, POLLIN, 0},
         {sockfd, POLLIN, 0}
@@ -36,9 +42,11 @@ int main(){
         } else if (fds[1].revents & POLLIN) {
             if (recv(sockfd, buffer, 255, 0) == 0) {
                 printf("Other party closed the socket, exiting...");
+                shutdown(sockfd, SHUT_RDWR);
+                close(sockfd);
                 return 0;
             };
-            printf("%s", buffer);
+            printf("Server: %s", buffer);
         }
     }
     return 0;
