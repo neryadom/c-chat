@@ -9,6 +9,7 @@
 
 #include "../../include/signal-handling.h"
 #include "../../include/error-handling.h"
+#include "../../include/messages.h"
 
 int main(){
     printf("=============   Starting server   =============\n\n");
@@ -27,7 +28,7 @@ int main(){
     }
     printf("sockfd: %d  <- Success!\n", sockfd);
 
-    /* this seems to definitely prevent bind() call error code 98 */
+    /* this seems to definitely prevent bind() call error code 98 upon quick restart of server*/
     int32_t sockopt_flag = 1;
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &sockopt_flag, sizeof(sockopt_flag));
 
@@ -60,8 +61,8 @@ int main(){
     }
     printf("clientfd: %d  <- Client connected - Success!\n", clientfd);
 
-    const char welcome[37] = "You are now connected to the server!";
-    send(clientfd, welcome, 37, 0);
+    send(clientfd, messages_clientside_client_connected, 37, 0);
+    send(clientfd, message_clientside_welcome_tips, 200, 0);
 
     struct pollfd fds[2] = {
         {0, POLLIN, 0},
