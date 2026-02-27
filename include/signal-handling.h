@@ -1,11 +1,11 @@
 #pragma once
-
+#include <stdatomic.h>
 #include <stdint.h>
 
 /* GET SOCKET FD
  * Gets server sockfd for use in the signal handler.
  */
-void signal_get_sockfd(int32_t sockfd);
+void signal_get_sockfd(atomic_int_least32_t sockfd);
 
 /* SIGINT HANDLER
  * Ensures the server is properly shutdown upon a sigint signal.

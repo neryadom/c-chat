@@ -1,10 +1,12 @@
-#include "../../include/signal-handling.h"
+#include <stdatomic.h>
 #include <unistd.h>
 #include <sys/socket.h>
 
-int32_t signal_handler_server_sockfd;
+#include "../../include/signal-handling.h"
 
-void signal_get_sockfd(const int32_t sockfd) {
+atomic_int_least32_t signal_handler_server_sockfd;
+
+void signal_get_sockfd(atomic_int_least32_t sockfd) {
     signal_handler_server_sockfd = sockfd;
 }
 
