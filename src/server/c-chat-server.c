@@ -12,6 +12,7 @@
 #include "../../include/error-handling.h"
 #include "../../include/messages.h"
 
+/* server socket file descriptor that clients talk to*/
 atomic_int_least32_t main_server_sockfd;
 
 int32_t main_server_startup() {
@@ -19,13 +20,10 @@ int32_t main_server_startup() {
     int32_t sockfd_ret = socket(AF_INET, SOCK_STREAM, 0);
     main_server_sockfd = sockfd_ret;
 
-
     /* signal handling: passing sockfd number to signal handling layer */
     signal_get_sockfd(main_server_sockfd);
     /* signal handling: registering signal handler to ensure proper shutdown in case of sigint */
     signal(SIGINT, signal_handler);
-    // /* error handling: passing sockfd number to error handling layer */
-    // error_get_sockfd(sockfd_ret);
 
     if (sockfd_ret < 0) error_handler(errno, "socket");
     printf("sockfd: %d  <- Success!\n", sockfd_ret);
