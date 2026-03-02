@@ -7,16 +7,18 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdatomic.h>
+#include <stdlib.h>
 
 #include "../../include/signal-handling.h"
 #include "../../include/error-handling.h"
 #include "../../include/messages.h"
+#include "../../include/config_load.h"
 
 /* server socket file descriptor that clients talk to*/
 atomic_int_least32_t main_server_sockfd;
 
 int32_t main_server_startup() {
-    printf("=============   Starting server   =============\n\n");
+    printf("\n\n=============   Starting server   =============\n\n");
     int32_t sockfd_ret = socket(AF_INET, SOCK_STREAM, 0);
     main_server_sockfd = sockfd_ret;
 
@@ -56,7 +58,17 @@ int32_t main_server_startup() {
     return success_ret;
 }
 
-int main(){
+int main(int argc, char** argv){
+
+    const char* filepath;
+    /* load config */
+    if (argc <= 1) filepath = "/home/nedaleko/c-chat/server.config";
+    else filepath = argv[1];
+
+    printf("Loading config in path -> %s\n", filepath);
+    parsed_config_t server_config = load_config(filepath);
+    /* end load config */
+
     int32_t startup_ret = main_server_startup();
     if (startup_ret < 0) {
         printf("Server did not set up properly, terminating, see startup notes on stdout\n");

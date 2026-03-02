@@ -7,8 +7,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 add_executable(c-chat
     src/server/c-chat-server.c
-    src/error-signal-handling/signal-handling.c
-    src/error-signal-handling/error-handling.c
+        src/signal-handling/signal-handling.c
+        src/error-handling/error-handling.c
+        src/config/config_load.c
 )
 
 
