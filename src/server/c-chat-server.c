@@ -7,7 +7,6 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdatomic.h>
-#include <stdlib.h>
 
 #include "../../include/signal-handling.h"
 #include "../../include/error-handling.h"
@@ -17,7 +16,7 @@
 /* server socket file descriptor that clients talk to*/
 atomic_int_least32_t main_server_sockfd;
 
-int32_t main_server_startup() {
+int32_t main_server_startup(parsed_config_t server_config) {
     printf("\n\n=============   Starting server   =============\n\n");
     int32_t sockfd_ret = socket(AF_INET, SOCK_STREAM, 0);
     main_server_sockfd = sockfd_ret;
@@ -36,7 +35,7 @@ int32_t main_server_startup() {
 
     const struct sockaddr_in address = {
         AF_INET,
-        htons(3456),
+        htons(server_config.port),
         0
     };
 
@@ -69,7 +68,7 @@ int main(int argc, char** argv){
     parsed_config_t server_config = load_config(filepath);
     /* end load config */
 
-    int32_t startup_ret = main_server_startup();
+    int32_t startup_ret = main_server_startup(server_config);
     if (startup_ret < 0) {
         printf("Server did not set up properly, terminating, see startup notes on stdout\n");
         return 1;
