@@ -4,6 +4,7 @@
 
 typedef struct Parsed_Config_T {
     char* ip;
+    int ip_int;
     uint8_t ip_size;
     uint32_t port;
     uint32_t client_limit;

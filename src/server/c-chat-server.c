@@ -34,9 +34,9 @@ int32_t main_server_startup(parsed_config_t server_config) {
     setsockopt(main_server_sockfd, SOL_SOCKET, SO_REUSEADDR, &sockopt_flag, sizeof(sockopt_flag));
 
     const struct sockaddr_in address = {
-        AF_INET,
-        htons(server_config.port),
-        0
+        .sin_family = AF_INET,
+        .sin_port = htons(server_config.port),
+        .sin_addr.s_addr = server_config.ip_int
     };
 
     int32_t bind_ret = bind(main_server_sockfd, (struct sockaddr*) &address, sizeof(address));
@@ -59,11 +59,10 @@ int32_t main_server_startup(parsed_config_t server_config) {
 
 int main(int argc, char** argv){
 
-    const char* filepath;
     /* load config */
+    const char* filepath;
     if (argc <= 1) filepath = "/home/nedaleko/c-chat/server.config";
     else filepath = argv[1];
-
     printf("Loading config in path -> %s\n", filepath);
     parsed_config_t server_config = load_config(filepath);
     /* end load config */

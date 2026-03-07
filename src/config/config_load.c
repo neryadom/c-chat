@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 void parse_line(char* line, char* lhs, char* rhs, char delimiter) {
     size_t len_line = strlen(line);
@@ -34,7 +35,9 @@ parsed_config_t load_config(const char* filepath){
         if (strcmp(param_key, "ip") == 0) {
             server_config.ip = param_value;
             server_config.ip_size = strlen(param_value);
+            inet_pton(AF_INET, server_config.ip, &server_config.ip_int);
             printf("Setting server ip to -> %s\n", server_config.ip);
+            printf("Setting server ip_int (int repr) to -> %d\n", server_config.ip_int);
             printf("Setting server ip_size to -> %d\n", server_config.ip_size);
         } else if (strcmp(param_key, "port") == 0) {
             server_config.port = (int32_t) strtol(param_value, nullptr, 10);
