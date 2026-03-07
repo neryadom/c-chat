@@ -17,7 +17,8 @@ void parse_line(char* line, char* lhs, char* rhs, char delimiter) {
     }
     memcpy(lhs, line, limit);
     lhs[limit] = '\0';
-    memcpy(rhs, line + limit + 1, len_line - limit);
+    memcpy(rhs, line + limit + 1 /* after equal sign onwards */, (len_line - limit - 1));
+    rhs[len_line - limit - 1] = '\0';
 }
 
 
@@ -28,12 +29,12 @@ parsed_config_t load_config(const char* filepath){
 
     while (fgets(line, 100, f) != NULL) {
         constexpr char char_delimiter = '=';
-        char param_key[50];
-        char param_value[50];
+        char param_key[50] = {0};
+        char param_value[50] = {0};
         parse_line(line, param_key, param_value, char_delimiter);
 
         if (strcmp(param_key, "ip") == 0) {
-            server_config.ip = param_value;
+            strncpy(server_config.ip, param_value, sizeof(param_value));
             server_config.ip_size = strlen(param_value);
             inet_pton(AF_INET, server_config.ip, &server_config.ip_int);
             printf("Setting server ip to -> %s\n", server_config.ip);

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef struct Parsed_Config_T {
-    char* ip;
+    char ip[50];
     int ip_int;
     uint8_t ip_size;
     uint32_t port;

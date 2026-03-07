@@ -51,6 +51,7 @@ int32_t main_server_startup(parsed_config_t server_config) {
     printf("(sockfd_ret) %d | (bind_ret) %d | (listen_ret) %d = %d", sockfd_ret, bind_ret, listen_ret, success_ret);
     if (success_ret >= 0) {
         printf(" <- Success!\n");
+        printf("Server running on ip address %s and on port %d\n", server_config.ip, server_config.port);
     } else {
         printf(" <- Failure!\n");
     }
