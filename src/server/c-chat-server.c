@@ -107,8 +107,8 @@ int main(int argc, char** argv){
         }
         printf("clientfd: %d  <- Client connected - Success!\n", clientfd);
 
-        send(clientfd, messages_clientside_client_connected, 37, 0);
-        send(clientfd, message_clientside_welcome_tips, 200, 0);
+        send(clientfd, messages_clientside_client_connected, strlen(messages_clientside_client_connected), 0);
+        send(clientfd, message_clientside_welcome_tips, strlen(message_clientside_welcome_tips), 0);
 
         struct pollfd fds[2] = {
             { /* this is stdin */ 0, POLLIN, 0},
@@ -118,14 +118,15 @@ int main(int argc, char** argv){
         // running loop to recv and send
         while (1) {
             poll(fds, 2, 100 /* in ms */);
-
-            char buffer[256] = { 0 };
+            uint32_t buf_size = server_config.buffer_size;
+            char buffer[buf_size];
+            memset(buffer, 0, buf_size);
 
             if (fds[0].revents & POLLIN) {
-                read(0, buffer, 255);
-                send(clientfd, buffer, 255, 0);
+                size_t read_size = read(0, buffer, buf_size - 1);
+                size_t send_size = send(clientfd, buffer, read_size, 0);
             } else if (fds[1].revents & POLLIN) {
-                if (recv(clientfd, buffer, 255, 0) == 0) {
+                if (recv(clientfd, buffer, buf_size - 1, 0) == 0) {
                     printf("Other party closed the socket, exiting...\n");
                     // shutdown(sockfd, SHUT_RDWR);
                     // close(sockfd);
