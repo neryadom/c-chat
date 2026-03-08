@@ -7,6 +7,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdatomic.h>
+#include <string.h>
 
 #include "../../include/signal-handling.h"
 #include "../../include/error-handling.h"
@@ -15,6 +16,27 @@
 
 /* server socket file descriptor that clients talk to*/
 atomic_int_least32_t main_server_sockfd;
+
+parsed_config_t main_config_create() {
+    parsed_config_t server_config;
+    memset(server_config.ip, 0, sizeof(server_config.ip));
+    server_config.ip_int = 0;
+    server_config.ip_size = 0;
+    server_config.port = 0;
+    server_config.buffer_size = 0;
+    server_config.client_limit = 0;
+    server_config.idle_timeout = 0;
+    return server_config;
+}
+
+int32_t main_config_populate(int argc, char** argv, parsed_config_t* server_config) {
+    const char* filepath;
+    if (argc <= 1) filepath = "/home/nedaleko/c-chat/server.config";
+    else filepath = argv[1];
+    printf("Loading config in path -> %s\n", filepath);
+    const int32_t ret = load_config(filepath, server_config);
+    return ret;
+}
 
 int32_t main_server_startup(parsed_config_t server_config) {
     printf("\n\n=============   Starting server   =============\n\n");
@@ -60,15 +82,17 @@ int32_t main_server_startup(parsed_config_t server_config) {
 
 int main(int argc, char** argv){
 
-    /* load config */
-    const char* filepath;
-    if (argc <= 1) filepath = "/home/nedaleko/c-chat/server.config";
-    else filepath = argv[1];
-    printf("Loading config in path -> %s\n", filepath);
-    parsed_config_t server_config = load_config(filepath);
-    /* end load config */
+    parsed_config_t server_config = main_config_create();
+
+    int32_t config_built_ret = main_config_populate(argc, argv, &server_config);
+
+    if (config_built_ret < 0) {
+        printf("Config did not get parsed properly, terminating, see startup notes on stdout\n");
+        return 1;
+    }
 
     int32_t startup_ret = main_server_startup(server_config);
+
     if (startup_ret < 0) {
         printf("Server did not set up properly, terminating, see startup notes on stdout\n");
         return 1;

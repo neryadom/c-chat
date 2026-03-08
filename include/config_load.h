@@ -12,4 +12,6 @@ typedef struct Parsed_Config_T {
     uint32_t idle_timeout;
 } parsed_config_t;
 
-parsed_config_t load_config(const char* filepath);
+void parse_line(char* line, char* lhs, char* rhs, char delimiter);
+
+int32_t load_config(const char* filepath, parsed_config_t* server_config);

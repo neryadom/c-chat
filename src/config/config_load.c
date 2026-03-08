@@ -22,8 +22,7 @@ void parse_line(char* line, char* lhs, char* rhs, char delimiter) {
 }
 
 
-parsed_config_t load_config(const char* filepath){
-    parsed_config_t server_config;
+int32_t load_config(const char* filepath, parsed_config_t* server_config){
     FILE* f = fopen(filepath, "r");
     char line[100];
 
@@ -34,27 +33,28 @@ parsed_config_t load_config(const char* filepath){
         parse_line(line, param_key, param_value, char_delimiter);
 
         if (strcmp(param_key, "ip") == 0) {
-            strncpy(server_config.ip, param_value, sizeof(param_value));
-            server_config.ip_size = strlen(param_value);
-            inet_pton(AF_INET, server_config.ip, &server_config.ip_int);
-            printf("Setting server ip to -> %s\n", server_config.ip);
-            printf("Setting server ip_int (int repr) to -> %d\n", server_config.ip_int);
-            printf("Setting server ip_size to -> %d\n", server_config.ip_size);
+            strncpy(server_config->ip, param_value, sizeof(param_value));
+            server_config->ip_size = strlen(param_value);
+            inet_pton(AF_INET, server_config->ip, &server_config->ip_int);
+            printf("Setting server ip to -> %s\n", server_config->ip);
+            printf("Setting server ip_int (int repr) to -> %d\n", server_config->ip_int);
+            printf("Setting server ip_size to -> %d\n", server_config->ip_size);
         } else if (strcmp(param_key, "port") == 0) {
-            server_config.port = (int32_t) strtol(param_value, nullptr, 10);
+            server_config->port = (int32_t) strtol(param_value, nullptr, 10);
             printf("Setting server port to -> %d\n", (int32_t) strtol(param_value, nullptr, 10));
         } else if (strcmp(param_key, "client_limit") == 0) {
-            server_config.client_limit = strtol(param_value, nullptr, 10);
-            printf("Setting server client limit to -> %d\n", server_config.client_limit);
+            server_config->client_limit = strtol(param_value, nullptr, 10);
+            printf("Setting server client limit to -> %d\n", server_config->client_limit);
         } else if (strcmp(param_key, "buffer_size") == 0) {
-            server_config.buffer_size = strtol(param_value, nullptr, 10);
-            printf("Setting server buffer size to -> %d\n", server_config.buffer_size);
+            server_config->buffer_size = strtol(param_value, nullptr, 10);
+            printf("Setting server buffer size to -> %d\n", server_config->buffer_size);
         } else if (strcmp(param_key, "idle_timeout") == 0) {
-            server_config.idle_timeout = strtol(param_value, nullptr, 10);
-            printf("Setting server idle timeout to -> %d\n", server_config.idle_timeout);
+            server_config->idle_timeout = strtol(param_value, nullptr, 10);
+            printf("Setting server idle timeout to -> %d\n", server_config->idle_timeout);
         } else {
             printf("Unrecognized format, breaking...\n");
+            return 1;
         }
     }
-    return server_config;
+    return 0;
 }
