@@ -100,7 +100,7 @@ int main(int argc, char** argv){
     printf("\n\n=============   Server running   =============\n\n");
 
     while (true) {
-        int32_t clientfd = accept(main_server_sockfd, 0, 0);
+        int32_t clientfd = accept(main_server_sockfd, nullptr, nullptr);
         if (clientfd < 0) {
             error_handler(errno, "accept");
             return 1;
@@ -111,8 +111,12 @@ int main(int argc, char** argv){
         send(clientfd, message_clientside_welcome_tips, strlen(message_clientside_welcome_tips), 0);
 
         struct pollfd fds[2] = {
-            { /* this is stdin */ 0, POLLIN, 0},
-            {clientfd, POLLIN, 0}
+            { .fd = 0 /* this is stdin */,
+                .events = POLLIN /* requested events */,
+                .revents = 0 /* returned events */},
+            { .fd = clientfd /* this is the client terminal */,
+                .events = POLLIN /* requested events */,
+                .revents = 0 /* returned events */},
         };
 
         // running loop to recv and send
@@ -125,15 +129,18 @@ int main(int argc, char** argv){
             if (fds[0].revents & POLLIN) {
                 size_t read_size = read(0, buffer, buf_size - 1);
                 size_t send_size = send(clientfd, buffer, read_size, 0);
+                printf("Sending message of read size %lu, send size %lu! (should match up)\n", read_size, send_size);
             } else if (fds[1].revents & POLLIN) {
-                if (recv(clientfd, buffer, buf_size - 1, 0) == 0) {
+                size_t recv_size = recv(clientfd, buffer, buf_size -1, 0);
+                if (recv_size == 0) {
                     printf("Other party closed the socket, exiting...\n");
                     // shutdown(sockfd, SHUT_RDWR);
                     // close(sockfd);
                     // return 0;
                     break;
-                };
-                printf("Client: %s", buffer);
+                }
+                printf("Received message of recv size %lu\n", recv_size);
+                printf("Client %d: %s", clientfd, buffer);
             }
         }
     }
