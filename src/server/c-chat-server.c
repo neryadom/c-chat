@@ -13,6 +13,7 @@
 #include "../../include/error-handling.h"
 #include "../../include/messages.h"
 #include "../../include/config_load.h"
+#include "../../include/client.h"
 
 /* server socket file descriptor that clients talk to*/
 atomic_int_least32_t main_server_sockfd;
@@ -80,6 +81,15 @@ int32_t main_server_startup(parsed_config_t server_config) {
     return success_ret;
 }
 
+user_array_t main_create_user_array(user_t* array, size_t size) {
+    user_array_t main_user_array;
+    main_user_array.user_array_start = array;
+    main_user_array.array_size = 0;
+    main_user_array.capacity = size;
+    printf("\nCreated empty user array of capacity %lu\n", size);
+    return main_user_array;
+}
+
 int main(int argc, char** argv){
 
     parsed_config_t server_config = main_config_create();
@@ -92,6 +102,9 @@ int main(int argc, char** argv){
     }
 
     int32_t startup_ret = main_server_startup(server_config);
+
+    user_t users[10];
+    user_array_t server_users_array = main_create_user_array(users, 10);
 
     if (startup_ret < 0) {
         printf("Server did not set up properly, terminating, see startup notes on stdout\n");
@@ -106,6 +119,9 @@ int main(int argc, char** argv){
             return 1;
         }
         printf("clientfd: %d  <- Client connected - Success!\n", clientfd);
+
+        user_t new_user = create_user(server_config.port, clientfd);
+        add_user_to_array(&server_users_array, new_user);
 
         send(clientfd, messages_clientside_client_connected, strlen(messages_clientside_client_connected), 0);
         send(clientfd, message_clientside_welcome_tips, strlen(message_clientside_welcome_tips), 0);

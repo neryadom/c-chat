@@ -10,6 +10,7 @@ add_executable(c-chat
         src/signal-handling/signal-handling.c
         src/error-handling/error-handling.c
         src/config/config_load.c
+        src/user/client.c
 )
 
 

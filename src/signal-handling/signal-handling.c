@@ -1,7 +1,3 @@
-#include <stdatomic.h>
-#include <unistd.h>
-#include <sys/socket.h>
-
 #include "../../include/signal-handling.h"
 
 atomic_int_least32_t signal_handler_server_sockfd;

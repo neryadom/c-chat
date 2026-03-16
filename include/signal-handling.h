@@ -1,6 +1,7 @@
 #pragma once
 #include <stdatomic.h>
-#include <stdint.h>
+#include <unistd.h>
+#include <sys/socket.h>
 
 /* GET SOCKET FD
  * Gets server sockfd for use in the signal handler.
